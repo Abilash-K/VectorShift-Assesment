@@ -142,7 +142,7 @@ def create_integration_item_metadata_object(
 
     return integration_item_metadata
 
-async def get_items_notion(credentials) -> list[IntegrationItem]:
+async def get_items_notion(credentials) -> list:
     """Aggregates all metadata relevant for a notion integration"""
     credentials = json.loads(credentials)
     response = requests.post(
@@ -153,13 +153,12 @@ async def get_items_notion(credentials) -> list[IntegrationItem]:
         },
     )
 
+    list_of_integration_item_metadata = []
     if response.status_code == 200:
         results = response.json()['results']
-        list_of_integration_item_metadata = []
         for result in results:
             list_of_integration_item_metadata.append(
-                create_integration_item_metadata_object(result)
+                create_integration_item_metadata_object(result).__dict__
             )
-
         print(list_of_integration_item_metadata)
-    return
+    return list_of_integration_item_metadata
