@@ -1,12 +1,10 @@
 import { useState, useEffect } from 'react';
-import {
-    Box,
-    Button,
-    CircularProgress
-} from '@mui/material';
+import { Box, Button, CircularProgress } from '@mui/material';
 import axios from 'axios';
+import { useIntegrationStore } from '../store/Store';
 
-export const HubSpotIntegration = ({ user, org, integrationParams, setIntegrationParams }) => {
+export const HubSpotIntegration = ({ user, org, integrationParams }) => {
+    const setIntegrationParams = useIntegrationStore(state => state.setIntegrationParams);
     const [isConnected, setIsConnected] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
 
@@ -46,7 +44,7 @@ export const HubSpotIntegration = ({ user, org, integrationParams, setIntegratio
             if (credentials) {
                 setIsConnecting(false);
                 setIsConnected(true);
-                setIntegrationParams(prev => ({ ...prev, credentials: credentials, type: 'HubSpot' }));
+                setIntegrationParams({ credentials, type: 'HubSpot' });
             }
             setIsConnecting(false);
         } catch (e) {
@@ -57,10 +55,9 @@ export const HubSpotIntegration = ({ user, org, integrationParams, setIntegratio
 
     useEffect(() => {
         setIsConnected(integrationParams?.credentials ? true : false)
-    }, []);
+    }, [integrationParams]);
 
     return (
-        <>
         <Box sx={{mt: 2}}>
             Parameters
             <Box display='flex' alignItems='center' justifyContent='center' sx={{mt: 2}}>
@@ -79,6 +76,5 @@ export const HubSpotIntegration = ({ user, org, integrationParams, setIntegratio
                 </Button>
             </Box>
         </Box>
-      </>
     );
 }

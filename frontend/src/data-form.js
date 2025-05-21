@@ -1,10 +1,11 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import {
     Box,
     TextField,
     Button,
 } from '@mui/material';
 import axios from 'axios';
+import { useIntegrationStore } from './store/Store';
 
 const endpointMapping = {
     'Notion': 'notion',
@@ -13,16 +14,24 @@ const endpointMapping = {
 };
 
 export const DataForm = ({ integrationType, credentials }) => {
-    const [loadedData, setLoadedData] = useState(null);
+    const loadedData = useIntegrationStore(state => state.loadedData);
+    const setLoadedData = useIntegrationStore(state => state.setLoadedData);
+    const clearLoadedData = useIntegrationStore(state => state.clearLoadedData);
+
     const endpoint = endpointMapping[integrationType];
+
+    // Reset loadedData when integrationType or credentials change
+    useEffect(() => {
+        clearLoadedData();
+    }, [integrationType, credentials, clearLoadedData]);
 
     const handleLoad = async () => {
         try {
             const formData = new FormData();
             formData.append('credentials', JSON.stringify(credentials));
             const response = await axios.post(`http://localhost:8000/integrations/${endpoint}/load`, formData);
-            const data = response.data;
-            setLoadedData(data);
+            setLoadedData(response.data);
+            console.log(response.data);
         } catch (e) {
             alert(e?.response?.data?.detail);
         }
@@ -33,9 +42,11 @@ export const DataForm = ({ integrationType, credentials }) => {
             <Box display='flex' flexDirection='column' width='100%'>
                 <TextField
                     label="Loaded Data"
-                    value={loadedData || ''}
+                    value={loadedData ? JSON.stringify(loadedData, null, 2) : ''}
                     sx={{mt: 2}}
                     InputLabelProps={{ shrink: true }}
+                    multiline
+                    minRows={3}
                     disabled
                 />
                 <Button
@@ -46,7 +57,7 @@ export const DataForm = ({ integrationType, credentials }) => {
                     Load Data
                 </Button>
                 <Button
-                    onClick={() => setLoadedData(null)}
+                    onClick={clearLoadedData}
                     sx={{mt: 1}}
                     variant='contained'
                 >

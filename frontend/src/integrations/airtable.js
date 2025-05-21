@@ -7,8 +7,10 @@ import {
     CircularProgress
 } from '@mui/material';
 import axios from 'axios';
+import { useIntegrationStore } from '../store/Store';
 
-export const AirtableIntegration = ({ user, org, integrationParams, setIntegrationParams }) => {
+export const AirtableIntegration = ({ user, org, integrationParams }) => {
+    const setIntegrationParams = useIntegrationStore(state => state.setIntegrationParams);
     const [isConnected, setIsConnected] = useState(false);
     const [isConnecting, setIsConnecting] = useState(false);
 
@@ -48,7 +50,7 @@ export const AirtableIntegration = ({ user, org, integrationParams, setIntegrati
             if (credentials) {
                 setIsConnecting(false);
                 setIsConnected(true);
-                setIntegrationParams(prev => ({ ...prev, credentials: credentials, type: 'Airtable' }));
+                setIntegrationParams({ credentials, type: 'Airtable' });
             }
             setIsConnecting(false);
         } catch (e) {
@@ -59,7 +61,7 @@ export const AirtableIntegration = ({ user, org, integrationParams, setIntegrati
 
     useEffect(() => {
         setIsConnected(integrationParams?.credentials ? true : false)
-    }, []);
+    }, [integrationParams]);
 
     return (
         <>
